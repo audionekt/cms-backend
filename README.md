@@ -21,6 +21,8 @@ A powerful, feature-rich Content Management System (CMS) backend built with Kotl
 - 🚨 **Error Handling**: Comprehensive exception handling
 - 📝 **Validation**: Request validation with Jakarta Validation
 - 🔄 **RESTful API**: Clean, well-structured REST endpoints
+- 🧪 **Test Coverage**: 82% code coverage with comprehensive test suite
+- 🤖 **CI/CD**: Automated testing and coverage enforcement via GitHub Actions
 
 ## Tech Stack
 
@@ -95,15 +97,13 @@ docker-compose logs -f backend
 
 4. (Optional) Seed the database with sample data:
 ```bash
-./seed-database-docker.sh
+./seed-database.sh
 ```
 
 This will populate the database with:
 - 5 users (password: `password123` for all)
 - 15 tags
 - 7 blog posts with MDX content (6 published, 1 draft)
-
-See [SEEDING_GUIDE.md](SEEDING_GUIDE.md) for complete details.
 
 ### Running Locally (without Docker)
 
@@ -235,6 +235,74 @@ Key configuration options in `application.yml`:
 ### Cleaning Build
 ```bash
 ./gradlew clean
+```
+
+## Testing & Coverage
+
+### Running Tests
+```bash
+# Run all tests
+./gradlew test
+
+# Run tests with coverage report
+./gradlew test jacocoTestReport
+
+# Verify 80% coverage enforcement
+./gradlew test jacocoTestCoverageVerification
+```
+
+### Test Suite (82% Coverage)
+
+The project maintains **82% code coverage** with comprehensive testing:
+
+**Repository Tests** (Real Database - No Mocking!)
+- `UserRepositoryTest` - JPA/Hibernate operations with H2
+- `BlogPostRepositoryTest` - Complex queries and relationships  
+- `TagRepositoryTest` - CRUD operations
+
+**Service Tests** (Minimal Mocking)
+- `UserServiceTest` - Business logic, password encoding
+- `BlogPostServiceTest` - Post management, status transitions
+- `TagServiceTest` - Tag operations
+- `MediaServiceTest` - File handling, type detection
+- `S3ServiceTest` - AWS S3 operations (mocked AWS only)
+
+**Controller Tests** (Integration Tests)
+- `UserControllerTest` - REST endpoints with MockMvc
+- `BlogPostControllerTest` - CRUD, pagination, search
+- `TagControllerTest` - Tag management endpoints
+- `MediaControllerTest` - File upload/download
+
+### Coverage Reports
+
+After running tests, view coverage reports at:
+- HTML: `build/reports/jacoco/test/html/index.html`
+- XML: `build/reports/jacoco/test/jacocoTestReport.xml`
+
+## CI/CD
+
+### GitHub Actions
+
+**CI - Build, Test & Coverage** (`.github/workflows/ci.yml`)
+- ✅ Runs on push to `main`/`develop` and all PRs
+- ✅ Builds the project with Gradle
+- ✅ Runs full test suite (82% coverage)
+- ✅ Enforces 80% minimum coverage (build fails if below)
+- ✅ Uploads coverage reports as artifacts
+- ✅ Comments coverage report on PRs
+
+### How It Works
+
+1. Push code to GitHub
+2. Workflow runs automatically
+3. View results in "Actions" tab
+4. Coverage reports available as downloadable artifacts
+5. PRs get automatic coverage comments
+
+### Status Badge
+
+```markdown
+![CI](https://github.com/YOUR_USERNAME/cms-backend/workflows/CI%20-%20Build,%20Test%20&%20Coverage/badge.svg)
 ```
 
 ## Security Notes

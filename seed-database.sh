@@ -1,41 +1,25 @@
 #!/bin/bash
 
-# CMS Backend - Manual Database Seeding Script
-# This script populates the database with sample blog posts, users, and tags.
-# Run this AFTER the database is up and migrations have been applied.
+# CMS Backend - Database Seeding Script
+# This script seeds the database by running SQL inside the Docker container
+# No need to have psql installed locally - just Docker!
 
 set -e
 
-echo "🌱 Starting database seeding..."
+echo "🌱 Starting database seeding (via Docker)..."
 
-# Database connection details (modify if needed)
-DB_HOST="${DB_HOST:-localhost}"
-DB_PORT="${DB_PORT:-5433}"
-DB_NAME="${DB_NAME:-cms_db}"
-DB_USER="${DB_USER:-cms_user}"
-DB_PASSWORD="${DB_PASSWORD:-cms_password}"
-
-# Check if PostgreSQL client is installed
-if ! command -v psql &> /dev/null; then
-    echo "❌ Error: psql (PostgreSQL client) is not installed."
-    echo "Install it with: brew install postgresql (macOS)"
+# Check if postgres container is running
+if ! docker ps | grep -q cms-postgres; then
+    echo "❌ Error: PostgreSQL container 'cms-postgres' is not running."
+    echo "Start it with: docker compose up -d postgres"
     exit 1
 fi
 
-# Check if database is accessible
-echo "🔍 Checking database connection..."
-export PGPASSWORD="$DB_PASSWORD"
-if ! psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c '\q' 2>/dev/null; then
-    echo "❌ Error: Cannot connect to database."
-    echo "Make sure Docker containers are running: docker compose up -d"
-    exit 1
-fi
+echo "✅ PostgreSQL container is running"
 
-echo "✅ Database connection successful"
-
-# Run the seed SQL file
+# Copy seed file into container and execute
 echo "🌱 Seeding database with sample data..."
-psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f src/main/resources/db/seed_data.sql
+docker exec -i cms-postgres psql -U cms_user -d cms_db < src/main/resources/db/seed_data.sql
 
 echo ""
 echo "✅ Database seeded successfully!"
