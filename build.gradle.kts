@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.20"
     kotlin("plugin.spring") version "1.9.20"
     kotlin("plugin.jpa") version "1.9.20"
+    jacoco
 }
 
 group = "com.cms"
@@ -42,6 +43,10 @@ dependencies {
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+    testImplementation("com.h2database:h2")
 }
 
 tasks.withType<KotlinCompile> {
@@ -53,6 +58,45 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            // Overall project coverage must be 80%
+            limit {
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+        rule {
+            // Per-class coverage (excludes infrastructure/data classes)
+            element = "CLASS"
+            limit {
+                minimum = "0.60".toBigDecimal()
+            }
+            excludes = listOf(
+                "com.cms.backend.CmsBackendApplicationKt",
+                "com.cms.backend.config.*",
+                "com.cms.backend.dto.*",
+                "com.cms.backend.entity.*",
+                "com.cms.backend.exception.*"  // Exception classes are infrastructure
+            )
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 

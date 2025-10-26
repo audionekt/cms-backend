@@ -43,9 +43,9 @@ class S3Service(
             logger.info("File uploaded successfully: $s3Key")
             
             return Pair(s3Key, fileUrl)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             logger.error("Error uploading file to S3: ${e.message}", e)
-            throw FileUploadException("Failed to upload file to S3: ${e.message}")
+            throw FileUploadException("Failed to upload file to S3: ${e.message}", e)
         }
     }
 
@@ -55,7 +55,7 @@ class S3Service(
             logger.info("File deleted successfully: $s3Key")
         } catch (e: Exception) {
             logger.error("Error deleting file from S3: ${e.message}", e)
-            throw FileDeleteException("Failed to delete file from S3: ${e.message}")
+            throw FileDeleteException("Failed to delete file from S3: ${e.message}", e)
         }
     }
 

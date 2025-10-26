@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  
+  flyway:
+    enabled: false
+
+# AWS - dummy values for tests
+aws:
+  access-key-id: test-access-key
+  secret-access-key: test-secret-key
+  region: us-east-1
+  s3:
+    bucket: test-bucket
+
+# CORS - test config
+cors:
+  allowed-origins: http://localhost:3000
+
+logging:
+  level:
+    com.cms.backend: DEBUG
+

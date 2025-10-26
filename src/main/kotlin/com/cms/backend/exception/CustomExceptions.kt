@@ -8,9 +8,9 @@ class InvalidRequestException(message: String) : RuntimeException(message)
 
 class UnauthorizedException(message: String) : RuntimeException(message)
 
-class FileUploadException(message: String) : RuntimeException(message)
+class FileUploadException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
-class FileDeleteException(message: String) : RuntimeException(message)
+class FileDeleteException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
 
 
