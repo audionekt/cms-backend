@@ -1,0 +1,24 @@
+# Development-specific configuration
+
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+server:
+  error:
+    include-stacktrace: on_param # Only show stacktrace when ?trace=true
+
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:3001
+
+logging:
+  level:
+    com.cms.backend: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+

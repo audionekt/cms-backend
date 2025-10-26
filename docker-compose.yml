@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cms-postgres
+    environment:
+      POSTGRES_DB: cms_db
+      POSTGRES_USER: cms_user
+      POSTGRES_PASSWORD: cms_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cms_user -d cms_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cms-backend
+    ports:
+      - "9090:9090"
+    environment:
+      # Database connection
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cms_db
+      SPRING_DATASOURCE_USERNAME: cms_user
+      SPRING_DATASOURCE_PASSWORD: cms_password
+      
+      # Spring profile
+      SPRING_PROFILE: ${SPRING_PROFILE:-dev}
+      
+      # CORS configuration
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      
+      # AWS S3 credentials - replace with your actual credentials
+      # See AWS_S3_SETUP.md for setup instructions
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cms-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  cms-network:
+    driver: bridge
+
